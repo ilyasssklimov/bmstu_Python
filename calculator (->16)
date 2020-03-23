@@ -20,9 +20,9 @@ exit - close program
 import tkinter as tk
 from tkinter import messagebox as mb
 
-SYS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+SYS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']  # alphabet
 LET = ['A', 'B', 'C', 'D', 'E', 'F']
-BASE = 16  # base if the number system into which numbers are converted
+BASE = 16  # base of the number system into which numbers are converted
 
 
 def menu():
