@@ -1,0 +1,278 @@
+"""
+------------------------------------------------------------------------------------------
+Developed by Ilya Klimov, student of BMSTU
+------------------------------------------------------------------------------------------
+This program can convert numbers to the hexadecimal number system and back to the decimal.
+Numbers can be either float or negative
+------------------------------------------------------------------------------------------
+0 .. 9, A .. F - buttons of alphabet
+. - point for float numbers
+info - show information about program
+del - clean entry line
++/- - change sign of number
+10 → 16 - convert number into decimal to hexadecimal system
+16 → 10 - convert number into hexadecimal to decimal system
+exit - close program
+------------------------------------------------------------------------------------------
+"""
+
+
+import tkinter as tk
+from tkinter import messagebox as mb
+
+SYS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+LET = ['A', 'B', 'C', 'D', 'E', 'F']
+BASE = 16  # base if the number system into which numbers are converted
+
+
+def menu():
+    """
+    display menu buttons (all possible commands) on the screen
+    0 .. 9, A .. F - buttons of alphabet
+    . - point for float numbers
+    info - information about program
+    del - clean entry line
+    +/- - change sign of number
+    10 → 16 - convert number into decimal to hexadecimal system
+    16 → 10 - convert number into hexadecimal to decimal system
+    exit - exit program
+    """
+    btn_1 = tk.Button(app, text='1', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '1'))
+    btn_1.grid(row=3, column=0, sticky="wens")
+    btn_2 = tk.Button(app, text='2', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '2'))
+    btn_2.grid(row=3, column=1, sticky="wens")
+    btn_3 = tk.Button(app, text='3', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '3'))
+    btn_3.grid(row=3, column=2, sticky="wens")
+    btn_4 = tk.Button(app, text='4', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '4'))
+    btn_4.grid(row=2, column=0, sticky="wens")
+    btn_5 = tk.Button(app, text='5', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '5'))
+    btn_5.grid(row=2, column=1, sticky="wens")
+    btn_6 = tk.Button(app, text='6', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '6'))
+    btn_6.grid(row=2, column=2, sticky="wens")
+    btn_7 = tk.Button(app, text='7', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '7'))
+    btn_7.grid(row=1, column=0, sticky="wens")
+    btn_8 = tk.Button(app, text='8', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '8'))
+    btn_8.grid(row=1, column=1, sticky="wens")
+    btn_9 = tk.Button(app, text='9', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '9'))
+    btn_9.grid(row=1, column=2, sticky="wens")
+    btn_0 = tk.Button(app, text='0', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), '0'))
+    btn_0.grid(row=4, column=0, columnspan=2, sticky="wens")
+
+    btn_dot = tk.Button(app, text='.', height=4, width=4, command=dot)
+    btn_dot.grid(row=4, column=2, sticky="wens")
+    btn_ = tk.Button(app, text='10 → 16', height=4, width=9, command=sys_to_new)
+    btn_.grid(row=3, column=3, sticky="wens")
+    btn_ = tk.Button(app, text='16 → 10', height=4, width=9, command=sys_to_10)
+    btn_.grid(row=4, column=3, sticky="wens")
+    btn_dot = tk.Button(app, text='+/-', height=4, width=9, command=sign)
+    btn_dot.grid(row=2, column=3, sticky="wens")
+    btn_del = tk.Button(app, text='del', height=4, width=9, command=delete_all)
+    btn_del.grid(row=1, column=3, sticky="wens")
+    btn_inf = tk.Button(app, text='info', height=1, width=9, command=info)
+    btn_inf.grid(row=0, column=3, sticky="wens")
+    btn_ext = tk.Button(app, text='exit', height=5, width=9, command=ext)
+    btn_ext.grid(row=5, column=3, rowspan=2, sticky="wens")
+
+    btn_a = tk.Button(app, text='A', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'A'))
+    btn_a.grid(row=5, column=0, sticky="wens")
+    btn_b = tk.Button(app, text='B', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'B'))
+    btn_b.grid(row=5, column=1, sticky="wens")
+    btn_c = tk.Button(app, text='C', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'C'))
+    btn_c.grid(row=5, column=2, sticky="wens")
+    btn_d = tk.Button(app, text='D', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'D'))
+    btn_d.grid(row=6, column=0, sticky="wens")
+    btn_e = tk.Button(app, text='E', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'E'))
+    btn_e.grid(row=6, column=1, sticky="wens")
+    btn_f = tk.Button(app, text='F', height=4, width=4, command=lambda: e_a.insert(len(e_a.get()), 'F'))
+    btn_f.grid(row=6, column=2, sticky="wens")
+
+
+def sys_to_new():
+
+    """
+    convert number (integer or float) from decimal system to hexadecimal
+    """
+    a = e_a.get().strip()
+    if a == '':
+        return warning('Input cannot be empty')
+
+    lt = [i for i in a if i in LET]
+    if len(lt) != 0:
+        return warning('There are not letters in decimal number system')
+
+    lt = [i for i in a if i in SYS]
+    if '.' in a:
+        lt.append('.')
+    if a[0] == '-':
+        lt.append('-')
+    if len(lt) != len(a):
+        return warning('There should not be another symbols')
+
+    k = a[0]
+    if k == '-':
+        a = a[1:]
+
+    dt = a.find('.')
+    if dt == (len(a) - 1):
+        a = a[:-1]
+        dt = -1
+
+    if dt != -1:
+        a1 = int(a[:dt])
+        a2 = float('0' + a[dt:])
+        b1 = ''
+        b2 = '.'
+    else:
+
+        a1 = int(a)
+        a2 = 0
+        b1 = ''
+        b2 = ''
+
+    while a1 != 0:
+        d = a1 % BASE
+        d = SYS[d]
+        b1 += d
+        a1 = a1 // BASE
+    b1 = b1[::-1]
+    if b1 == '':
+        b1 = '0'
+
+    n = 5
+    ln = 0
+
+    while (a2 != 0) and (ln != n):
+        ln += 1
+        r = str(a2 * BASE)
+        dt = r.find('.')
+
+        d = int(r[:dt])
+        d = SYS[d]
+
+        b2 += str(d)
+        a2 = float('0' + r[dt:])
+
+    e_a.delete(0, 'end')
+    b = b1 + b2
+    if k == '-':
+        b = '-' + b
+    e_a.insert(0, b)
+
+
+def sys_to_10():
+    """
+    convert number (integer or float) from hexadecimal system to decimal
+    """
+
+    a = e_a.get()
+    if a == '':
+        return warning('Input cannot be empty')
+
+    lt = [i for i in a if i in SYS]
+    if '.' in a:
+        lt.append('.')
+    if a[0] == '-':
+        lt.append('-')
+    if len(lt) != len(a):
+        return warning('There should not be another symbols')
+
+    k = a[0]
+    if k == '-':
+        a = a[1:]
+
+    dt = a.find('.')
+    if dt != -1:
+        a1 = a[:dt]
+        a2 = a[dt + 1:]
+    else:
+        a1 = a
+        a2 = ''
+    b1 = 0
+    b2 = 0
+    r1 = len(a1)
+    r2 = len(a2)
+
+    for i in range(r1):
+        ind = r1 - i - 1
+        d = a1[i]
+        d = SYS.index(d)
+        b1 += d * (BASE ** ind)
+
+    for i in range(r2):
+        ind = -i - 1
+        d = a2[i]
+        d = SYS.index(d)
+        b2 += d * (BASE ** ind)
+
+    b2 = float(str(b2)[:7])
+    if b2 == 0:
+        b2 = int(b2)
+    b = str(b1 + b2)
+    e_a.delete(0, 'end')
+    if k == '-':
+        b = '-' + b
+    e_a.insert(0, b)
+
+
+def delete_all():
+    """
+    clean entry line
+    """
+    e_a.delete(0, 'end')
+
+
+def sign():
+    """
+    change sign of number
+    """
+
+    if e_a.get().strip() == '':
+        e_a.insert(0, '-')
+    elif e_a.get()[0] == '-':
+        e_a.delete(0)
+    else:
+        e_a.insert(0, '-')
+
+
+def dot():
+    if '.' not in e_a.get():
+        e_a.insert(len(e_a.get()), '.')
+
+
+def info():
+    """
+    show information about program
+    """
+    information = '''This program was developed by Ilya Klimov (student of BMSTU of software-engineering, 22B group)
+This is calculator, which can convert numbers to the hexadecimal number system and back to the decimal
+Also you can input either float or negative numbers'''
+    mb.showinfo('Information about program', information)
+
+
+def warning(mes):
+    """
+    show a warning with message (:param: mes) due to inability to do an action
+    """
+    mb.showwarning('Warning', mes)
+
+
+def ext():
+    """
+    close program with warning
+    """
+    answer = mb.askyesno(title="Confirm", message="Do you want to exit?")
+    if answer:
+        exit()
+
+
+root = tk.Tk()
+root.title('Calculator')
+
+app = tk.Frame(root, pady=10, padx=10)
+app.grid()
+e_a = tk.Entry(app, font='Times 25')
+e_a.grid(row=0, column=0, columnspan=3)
+
+menu()
+
+root.mainloop()
