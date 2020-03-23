@@ -118,7 +118,10 @@ def sys_to_new():
         dt = -1
 
     if dt != -1:
-        a1 = int(a[:dt])
+        if a[0] != '.':
+            a1 = int(a[:dt])
+        else:
+            a1 = 0
         a2 = float('0' + a[dt:])
         b1 = ''
         b2 = '.'
