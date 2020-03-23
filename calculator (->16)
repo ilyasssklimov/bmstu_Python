@@ -5,7 +5,7 @@ Developed by Ilya Klimov, student of BMSTU
 This program can convert numbers to the hexadecimal number system and back to the decimal.
 Numbers can be either float or negative
 ------------------------------------------------------------------------------------------
-0 .. 9, A .. F - buttons of alphabet
+0 .. 9, A .. F - buttons of the alphabet
 . - point for float numbers
 info - show information about program
 del - clean entry line
@@ -20,6 +20,7 @@ exit - close program
 import tkinter as tk
 from tkinter import messagebox as mb
 
+
 SYS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']  # alphabet
 LET = ['A', 'B', 'C', 'D', 'E', 'F']
 BASE = 16  # base of the number system into which numbers are converted
@@ -27,7 +28,30 @@ BASE = 16  # base of the number system into which numbers are converted
 
 def menu():
     """
-    display menu buttons (all possible commands) on the screen
+    display menu on the screen:
+
+    Reiteration --> Convert from 10 to 16
+                    Convert from 16 to 10'
+                    Clean entry field
+
+    Info --> Information about program
+    """
+    main_menu = tk.Menu(root)
+    root.config(menu=main_menu)
+
+    action_menu = tk.Menu(main_menu)
+    action_menu.add_command(label='Convert from 10 to 16', command=sys_to_new)
+    action_menu.add_command(label='Convert from 16 to 10', command=sys_to_10)
+    action_menu.add_command(label='Clean entry field', command=delete_all)
+    main_menu.add_cascade(label='Reiteration', menu=action_menu)
+
+    info_menu = tk.Menu()
+    info_menu.add_command(label='Information about program', command=info)
+    main_menu.add_cascade(label='Info', menu=info_menu)
+
+def display():
+    """
+    display buttons (all possible commands) on the screen
     0 .. 9, A .. F - buttons of alphabet
     . - point for float numbers
     info - information about program
@@ -88,7 +112,6 @@ def menu():
 
 
 def sys_to_new():
-
     """
     convert number (integer or float) from decimal system to hexadecimal
     """
@@ -271,11 +294,13 @@ def ext():
 root = tk.Tk()
 root.title('Calculator')
 
+menu()
+
 app = tk.Frame(root, pady=10, padx=10)
 app.grid()
 e_a = tk.Entry(app, font='Times 25')
 e_a.grid(row=0, column=0, columnspan=3)
 
-menu()
+display()
 
 root.mainloop()
