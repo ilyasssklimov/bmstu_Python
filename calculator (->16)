@@ -14,6 +14,7 @@ del - clean entry line
 16 → 10 - convert number into hexadecimal to decimal system
 exit - close program
 ------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
 """
 
 
@@ -48,6 +49,7 @@ def menu():
     info_menu = tk.Menu()
     info_menu.add_command(label='Information about program', command=info)
     main_menu.add_cascade(label='Info', menu=info_menu)
+
 
 def display():
     """
@@ -92,8 +94,6 @@ def display():
     btn_dot.grid(row=2, column=3, sticky="wens")
     btn_del = tk.Button(app, text='del', height=4, width=9, command=delete_all)
     btn_del.grid(row=1, column=3, sticky="wens")
-    btn_inf = tk.Button(app, text='info', height=1, width=9, command=info)
-    btn_inf.grid(row=0, column=3, sticky="wens")
     btn_ext = tk.Button(app, text='exit', height=5, width=9, command=ext)
     btn_ext.grid(row=5, column=3, rowspan=2, sticky="wens")
 
@@ -291,16 +291,17 @@ def ext():
         exit()
 
 
-root = tk.Tk()
-root.title('Calculator')
+if __name__ == '__main__':
+    root = tk.Tk()
+    root.title('Calculator')
 
-menu()
+    menu()
 
-app = tk.Frame(root, pady=10, padx=10)
-app.grid()
-e_a = tk.Entry(app, font='Times 25')
-e_a.grid(row=0, column=0, columnspan=3)
+    app = tk.Frame(root, pady=10, padx=10)
+    app.grid()
+    e_a = tk.Entry(app, font='Times 25')
+    e_a.grid(row=0, column=0, columnspan=4)
 
-display()
+    display()
 
-root.mainloop()
+    root.mainloop()
