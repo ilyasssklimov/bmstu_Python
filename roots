@@ -1,0 +1,412 @@
+"""
+------------------------------------------------------------------------------------------
+Developed by Ilya Klimov, student of BMSTU
+------------------------------------------------------------------------------------------
+This program can find the roots of the function, make a table with data, plot the function
+------------------------------------------------------------------------------------------
+There are
+- six input fields: function, left border, right border, step,
+maximum number of iterations, accuracy
+- two buttons: display a table with the result, plot the function
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+"""
+
+
+import tkinter as tk
+import sympy as sp
+import matplotlib.pyplot as plt
+import numpy as np
+import math as m
+from timeit import default_timer as sdt
+from tkinter import messagebox as mb
+
+
+def func_np(x):
+    """
+    transform string input to function (from numpy or ordinary)
+    :param x:
+    :return: transformed function
+    """
+    g = e_f.get()
+    try:
+        a = eval(f'np.{g}')
+    except (AttributeError, SyntaxError):
+        a = eval(g)
+    return a
+
+
+def func_sp(x):
+    """
+    transform string input to function (from sympy or ordinary)
+    :param x:
+    :return: transformed function
+    """
+    g = e_f.get()
+    try:
+        a = eval(f'sp.{g}')
+    except (AttributeError, SyntaxError):
+        a = eval(g)
+    return a
+
+
+def func_m(x):
+    """
+    transform string input to function (from math or ordinary)
+    :param x:
+    :return: trnsformde function
+    """
+    g = e_f.get()
+    try:
+        a = eval(f'm.{g}')
+    except (AttributeError, SyntaxError):
+        a = eval(g)
+    return a
+
+
+def display():
+    """
+    display all labels and buttons on the screen
+    """
+    n = tk.Label(app, text='Enter input to clarify the roots by brentq method', font='Times 20')
+    n.grid(row=0, column=0, columnspan=3, pady=5)
+
+    f = tk.Label(app, text='Function:')
+    f.grid(row=1, column=0, sticky=tk.W)
+
+    a = tk.Label(app, text='Left border:')
+    a.grid(row=2, column=0, sticky=tk.W)
+
+    b = tk.Label(app, text='Right border:')
+    b.grid(row=3, column=0, sticky=tk.W)
+
+    h = tk.Label(app, text='Step:')
+    h.grid(row=4, column=0, sticky=tk.W)
+
+    iteration = tk.Label(app, text='Maximum number of iterations:')
+    iteration.grid(row=5, column=0, sticky=tk.W)
+
+    eps = tk.Label(app, text='Accuracy:')
+    eps.grid(row=6, column=0, sticky=tk.W)
+
+    btn_table = tk.Button(app, text='Display a table with the result', command=table)
+    btn_table.grid(row=7, column=0, columnspan=3, pady=10)
+
+    btn_graph = tk.Button(app, text='Plot the function', command=graph)
+    btn_graph.grid(row=8, column=0, columnspan=3)
+
+
+def input_values():
+    """
+    check and handle input values
+    :return: list of values
+    """
+    t_a = e_a.get()
+    if t_a.strip() == '':
+        return warning('Left border field cannot be empty')
+    else:
+        try:
+            t_a = int(t_a)
+        except:
+            return warning('Incorrect left border')
+
+    t_b = e_b.get()
+    if t_b.strip() == '':
+        return warning('Right border field cannot be empty')
+    else:
+        try:
+            t_b = int(t_b)
+        except:
+            return warning('Incorrect right border')
+
+    t_h = e_h.get()
+    if t_h.strip() == '':
+        return warning('Step field cannot be empty')
+    else:
+        try:
+            t_h = int(t_h)
+        except:
+            return warning('Incorrect step')
+
+    t_it = e_it.get()
+    if t_it.strip() == '':
+        return warning('Iteration field cannot be empty')
+    else:
+        try:
+            t_it = int(t_it)
+        except:
+            return warning('Incorrect maximum number of iterations')
+
+    t_eps = e_eps.get()
+    if t_eps.strip() == '':
+        return warning('Accuracy field cannot be empty')
+    elif (float(t_eps) <= 0) or (float(t_eps) >= 1):
+        return warning('Accuracy must be positive and less then 1')
+    else:
+        try:
+            t_eps = float(t_eps)
+        except:
+            return warning('Incorrect accuracy')
+
+    x = np.linspace(int(e_a.get()), int(e_b.get()), 1000)
+    try:
+        func_np(x)
+    except:
+        return warning('Incorrect function')
+
+    values = brentq(t_a, t_b, t_h, t_it, t_eps)
+    return values
+
+
+def brentq(a, b, h, iteration, eps):
+    """
+    calculate the roots by brentq method
+    :return: list of the result values
+    """
+    fin = b
+    a1 = a
+    b = a1 + h
+    b1 = b
+
+    c = b
+    s = b
+    d = 0
+    flag = True
+
+    flag1 = True
+    root_self = []
+    time_self = []
+    array_a = []
+    array_b = []
+    itr = []
+
+    while (a1 < fin) or (flag1 and a1 != fin):
+        if abs(func_m(a)) < abs(func_m(b)):
+            a, b = b, a
+
+        if b1 > fin:
+            if a > b:
+                a, b = b, a
+            b = fin
+            if abs(func_m(a)) < abs(func_m(b)):
+                a, b = b, a
+            flag1 = False
+        if func_m(a) * func_m(b) <= 0:
+            array_a.append(min(a, b))
+            array_b.append(max(a, b))
+            k = 0
+            start = sdt()
+            while ((func_m(b) != 0) or (func_m(s) != 0)) and (abs(b - a) > eps):
+                k += 1
+                if (func_m(a) != func_m(c)) and (func_m(b) != func_m(c)):
+                    s1 = (a * func_m(b) * func_m(c)) / ((func_m(a) - func_m(b)) * (func_m(a) - func_m(c)))
+                    s2 = (b * func_m(a) * func_m(c)) / ((func_m(b) - func_m(a)) * (func_m(b) - func_m(c)))
+                    s3 = (c * func_m(a) * func_m(b)) / ((func_m(c) - func_m(a)) * (func_m(c) - func_m(b)))
+                    s = s1 + s2 + s3
+                else:
+                    s = b - (func_m(b) * (b - a) / (func_m(b) - func_m(a)))
+
+                if ((abs(s) > abs(3 * a + b)) and (abs(s) > abs(b))) or (
+                    flag and (abs(s - b) >= (abs(b - c) / 2))) or (
+                    not flag and (abs(s - b) >= (abs(c - d) / 2))) or (
+                    flag and (abs(b - c) < abs(eps))) or (
+                    not flag and (abs(c - d) < abs(eps))):
+                    s = (a + b) / 2
+                    flag = True
+                else:
+                    flag = False
+
+                d = c
+                c = b
+                if func_m(a) * func_m(s) < 0:
+                    b = s
+                else:
+                    a = s
+                if abs(func_m(a)) < abs(func_m(b)):
+                    a, b = b, a
+            loc = sdt() - start
+            time_self.append(loc)
+            root_self.append(b)
+            itr.append(k)
+
+        a = b1
+        b = b1 + h
+        a1 = a
+        b1 = b
+
+    fin = len(root_self)
+    i = 0
+    while i != fin - 1:
+        if root_self[i] == root_self[i+1]:
+            del root_self[i]
+            del time_self[i]
+            del array_a[i]
+            del array_b[i]
+            del itr[i]
+            fin -= 1
+            i -= 1
+        i += 1
+    values = [array_a, array_b, root_self, itr, time_self]
+    return values
+
+
+def graph():
+    """
+    plot the graph of the function
+    """
+    values = input_values()
+
+    if isinstance(values, list):
+
+        def sign(a):
+            if a > 0:
+                return 1
+            elif a < 0:
+                return -1
+            else:
+                return 0
+
+        x = np.linspace(int(e_a.get()), int(e_b.get()), 1000)
+        y = func_np(x)
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label='graph')
+        ax.grid()
+        plt.title(f'Result ({e_f.get()})')
+
+        values = input_values()
+        for i in range(len(values[0])):
+            if i == 0:
+                plt.scatter(values[2][i], func_np(values[2][i]), color='red', s=100, marker='x', label='roots')
+            else:
+                plt.scatter(values[2][i], func_np(values[2][i]), color='red', s=100, marker='x')
+
+        x = sp.symbols('x')
+        dx = sp.diff(sp.diff(func_sp(x), x), x)
+        dx = sp.lambdify(x, dx)
+
+        x = np.linspace(int(e_a.get()), int(e_b.get()), 100000)
+        x = list(x)
+        zeros = []
+        for i in range(len(x) - 1):
+            if sign(dx(x[i])) != sign(dx(x[i + 1])):
+                zeros.append(x[i])
+
+        for i in range(len(zeros)):
+            if i == 0:
+                plt.scatter(zeros[i], func_np(zeros[i]), color='orange', s=100, marker='o', label='inflection points')
+            else:
+                plt.scatter(zeros[i], func_np(zeros[i]), color='orange', s=100, marker='o')
+
+        plt.legend()
+        plt.show()
+
+
+def table():
+    """
+    create the table with result
+    """
+    values = input_values()
+
+    if isinstance(values, list):
+        root_table = tk.Tk()
+        root_table.title('Table')
+        app_table = tk.Frame(root_table, pady=10, padx=10)
+        app_table.grid()
+
+        t = tk.Label(app_table, text='Result table', font='Times 20 bold')
+        t.grid(row=0, column=0, columnspan=8, pady=5)
+
+        num_title = tk.Label(app_table, text='Root number', font='Times 15 italic')
+        num_title.grid(row=1, column=0, sticky="wens")
+
+        a_title = tk.Label(app_table, text='Left border', font='Times 15 italic')
+        a_title.grid(row=1, column=1, sticky="wens")
+
+        b_title = tk.Label(app_table, text='Right border', font='Times 15 italic')
+        b_title.grid(row=1, column=2, sticky="wens")
+
+        root_title = tk.Label(app_table, text='Root value', font='Times 15 italic')
+        root_title.grid(row=1, column=3, sticky="wens")
+
+        func_title = tk.Label(app_table, text='Function value', font='Times 15 italic')
+        func_title.grid(row=1, column=4, sticky="wens")
+
+        it_title = tk.Label(app_table, text='Number of iterations', font='Times 15 italic')
+        it_title.grid(row=1, column=5, sticky="wens")
+
+        time_title = tk.Label(app_table, text='Calculation time', font='Times 15 italic')
+        time_title.grid(row=1, column=6, sticky="wens")
+
+        er_title = tk.Label(app_table, text='Error code', font='Times 15 italic')
+        er_title.grid(row=1, column=7, sticky="wens")
+
+        for i in range(len(values[0])):
+            if values[3][i] <= int(e_it.get()):
+                num = tk.Label(app_table, text=str(i + 1))
+                num.grid(row=2 + i, column=0, sticky="wens", padx=45)
+
+                a_fin = tk.Label(app_table, text='{:d}'.format(values[0][i]))
+                a_fin.grid(row=2 + i, column=1, sticky="wens", padx=45)
+
+                b_fin = tk.Label(app_table, text='{:d}'.format(values[1][i]))
+                b_fin.grid(row=2 + i, column=2, sticky="wens", padx=45)
+
+                root_fin = tk.Label(app_table, text='{:.7f}'.format(values[2][i]))
+                root_fin.grid(row=2 + i, column=3, sticky="wens", padx=30)
+
+                root_func_fin = tk.Label(app_table, text='{:.0e}'.format(float(func_m(values[2][i]))))
+                root_func_fin.grid(row=2 + i, column=4, sticky="wens", padx=45)
+
+                it_fin = tk.Label(app_table, text='{:d}'.format(values[3][i]))
+                it_fin.grid(row=2 + i, column=5, sticky="wens", padx=60)
+
+                time_fin = tk.Label(app_table, text='{:.7f}'.format(values[4][i]))
+                time_fin.grid(row=2 + i, column=6, sticky="wens", padx=40)
+
+                er = tk.Label(app_table, text=0)
+                er.grid(row=2 + i, column=7, sticky="wens", padx=50)
+            else:
+                er = tk.Label(app_table, text='1')
+                er.grid(row=2 + i, column=7, sticky=tk.W, padx=40)
+
+        root_table.mainloop()
+
+
+def warning(mes):
+    """
+    show a warning with message (:param: mes) due to inability to do an action
+    """
+    mb.showwarning('Warning', mes)
+
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    root.title('Clarification of the roots')
+
+    app = tk.Frame(root, pady=10, padx=10)
+    app.grid()
+
+    display()
+
+    e_f = tk.Entry(app)
+    e_f.insert(0, 'sin(x)')
+    e_f.grid(row=1, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    e_a = tk.Entry(app)
+    e_a.grid(row=2, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    e_b = tk.Entry(app)
+    e_b.grid(row=3, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    e_h = tk.Entry(app)
+    e_h.grid(row=4, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    e_it = tk.Entry(app)
+    e_it.insert(0, '100')
+    e_it.grid(row=5, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    e_eps = tk.Entry(app)
+    e_eps.insert(0, '0.00001')
+    e_eps.grid(row=6, column=1, columnspan=2, sticky=tk.W, padx=5)
+
+    root.mainloop()
