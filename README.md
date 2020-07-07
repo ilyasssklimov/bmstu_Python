@@ -1,2 +1,1 @@
-# labs
-programs on Python
+# mini programs on Python
